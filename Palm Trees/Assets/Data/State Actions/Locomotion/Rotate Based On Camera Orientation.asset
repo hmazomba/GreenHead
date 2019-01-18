@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0203413c90e91324ea25e0ff13b9f872, type: 3}
+  m_Name: Rotate Based On Camera Orientation
+  m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 11400000, guid: 9a7c5470e44b9b64f8e75c6cc92902c6, type: 2}
+  speed: 8

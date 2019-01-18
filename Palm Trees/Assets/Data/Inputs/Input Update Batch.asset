@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daff3b025bd77b941b9937f7ecf2eec2, type: 3}
+  m_Name: Input Update Batch
+  m_EditorClassIdentifier: 
+  actions:
+  - {fileID: 11400000, guid: 79e847a91599b4f40a32395dd9b7d365, type: 2}
+  - {fileID: 11400000, guid: ba63f1438f38a094b884e438a0d3d1be, type: 2}
+  - {fileID: 11400000, guid: 863e3099464f24c469b869802dca6b9e, type: 2}
+  - {fileID: 11400000, guid: c896cc7570fa3c54d9557280fed67105, type: 2}
+  - {fileID: 11400000, guid: 966910c31bd64ba4698ec0708a52eb32, type: 2}

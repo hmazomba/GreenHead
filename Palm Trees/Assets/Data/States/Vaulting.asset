@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e09f12a9b8fb5e44eb81fa499afbecc4, type: 3}
+  m_Name: Vaulting
+  m_EditorClassIdentifier: 
+  onFixed: []
+  onUpdate:
+  - {fileID: 11400000, guid: 84997cb4ccb5407438e8eae12655e3b1, type: 2}
+  onEnter:
+  - {fileID: 11400000, guid: 8af7420cde9c43c48a8ebe5b0361b0e7, type: 2}
+  onExit:
+  - {fileID: 11400000, guid: 1e3426e9edde6a349b4d1f02719fd544, type: 2}
+  idCount: 1
+  transitions:
+  - id: 0
+    condition: {fileID: 11400000, guid: ea9df5e2858fd374494316b38d37db6d, type: 2}
+    targetState: {fileID: 11400000, guid: f4b59a62ccb73904cbfec2188dcad27f, type: 2}
+    disable: 0

@@ -70,11 +70,11 @@ namespace Climbing
 
         for (int i = 0; i < t.ConnectedPoints.Count; i++)
         {
-            if(t.ConnectedPoints[i].target == null)
+            if(t.ConnectedPoints[i].target1 == null)
                 continue;
 
             Vector3 pos1 = t.transform.position;
-            Vector3 pos2 = t.ConnectedPoints[i].target.transform.position;
+            Vector3 pos2 = t.ConnectedPoints[i].target1.transform.position;
 
             switch (t.ConnectedPoints[i].connectionType)
             {

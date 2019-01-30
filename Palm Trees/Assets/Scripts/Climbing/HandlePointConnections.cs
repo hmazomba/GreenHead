@@ -22,6 +22,7 @@ namespace Climbing
 
 		List<Point> allPoints = new List<Point>();
 		Vector3[] availableDirections = new Vector3[8];
+		public List<GameObject> dismountPoints = new List<GameObject>();
 
 		void CreateDirections()
 		{
@@ -39,10 +40,13 @@ namespace Climbing
 		{
 			if(updateConnections)
 			{
+				ClearGarbage();
 				GetPoints();
 				CreateDirections();
 				CreateConnections();
 				FindDismountCandidates();
+				FindFallCandidates();
+				FindHangingPoints();
 				RefreshAll();
 
 				updateConnections=false;
@@ -53,11 +57,115 @@ namespace Climbing
 				GetPoints();
 				for (int p = 0; p < allPoints.Count; p++)
 				{
-					
+					ClearGarbage();
+					GetPoints();
+					for (int f = 0; f < allPoints.Count; f++)
+					{
+						List<Neighbour> customConnections = new List<Neighbour>();
+						for (int i = 0; i < allPoints[f].neighbours.Count; i++)
+						{
+							customConnections.Add(allPoints[f].neighbours[i]);
+						}
+						allPoints[f].neighbours.Clear();
+						allPoints[f].neighbours.AddRange(customConnections);
+					}
+					RefreshAll();
+					resetConnections = false;					
 				}
 			}
 		}
 
+        void FindHangingPoints()
+        {
+            HandlePoints[] hp = GetComponentsInChildren<HandlePoints>();
+			List<Point> candidates = new List<Point>();
+
+			for (int i = 0; i < hp.Length; i++)
+			{
+				if(hp[i].hangingPoints)
+				{
+					candidates.AddRange(hp[i].pointsInOrder);
+				}
+			}
+			Point[] ps = GetComponentsInChildren<Point>();
+
+			foreach (Point p in ps)
+			{
+				if(p.pointType == PointType.hanging)
+				{
+					if(!candidates.Contains(p))
+					{
+						candidates.Add(p);
+					}
+				}
+			} 
+			if(candidates.Count > 0)
+			{
+				foreach(Point p in candidates)
+				{
+					p.pointType = PointType.hanging;
+
+					Vector3 targetP = Vector3.zero;
+					targetP.y = -1.5f;
+					p.transform.localPosition = targetP;
+				}
+			}
+        }
+
+        void FindFallCandidates()
+        {
+			Point[] ps = GetComponentsInChildren<Point>();
+			foreach(Point p in ps)
+			{
+				Neighbour down = p.ReturnNeighbourFromDirection(Vector3.down);
+
+				if(down== null)
+				{
+					RaycastHit hit;
+					if(Physics.Raycast(p.transform.position, Vector3.down, out hit, 3))
+					{
+						Neighbour n = new Neighbour();
+						n.direction = -Vector3.up;
+						n.target = p;
+						n.connectionType = ConnectionType.falling;
+						p.neighbours.Add(n);
+					}
+					
+				}
+				
+			}
+            /* HandlePoints[] hp = GetComponentsInChildren<HandlePoints>();
+			List<Point> candidates = new List<Point>();
+			for (int i = 0; i < hp.Length; i++)
+			{
+				if(hp[i].fallPoint)
+				{
+					candidates.AddRange(hp[i].pointsInOrder);
+				}
+			}
+
+			if(candidates.Count > 0)
+			{
+				foreach(Point p in candidates)
+				{
+					Neighbour n = new Neighbour();
+					n.direction = -Vector3.up;
+					n.target = p;
+					n.connectionType = ConnectionType.falling;
+					p.neighbours.Add(n);
+				}
+			} */
+        }
+
+        void ClearGarbage()
+		{
+			foreach(GameObject go in dismountPoints)
+			{
+				DestroyImmediate(go);
+			}
+			dismountPoints.Clear();
+		}
+		
 		void GetPoints()
 		{
 			allPoints.Clear();
@@ -133,12 +241,14 @@ namespace Climbing
 			GameObject dismountPrefab = Resources.Load("Dismount") as GameObject;
 			if(dismountPrefab == null)
 			{
-				Debug.Log("You forgot the dismount prefab STUPID!!");
+				Debug.Log("no dismount prefab found!");
 				return;
 			}
 
 			HandlePoints[] hp = GetComponentsInChildren<HandlePoints>();
 			List<Point> candidates = new List<Point>();
+
+			Point[] dismountPoints = GetComponentsInChildren<Point>();
 
 			for (int i = 0; i < hp.Length; i++)
 			{
@@ -148,37 +258,60 @@ namespace Climbing
 				}
 			}
 
-			if(candidates.Count > 0)
+			for (int i = 0; i < dismountPoints.Length; i++)
+			{
+				if(dismountPoints[i].dismountPoint)
+				{
+					if(!candidates.Contains(dismountPoints[i]))
+					{
+						candidates.Add(dismountPoints[i]);
+					}
+				}
+			}
+
+			if(candidates.Count> 0)
 			{
 				GameObject parentObj = new GameObject();
-				parentObj.name = "Dismount Points";
+				parentObj.name= "Dismount Points";
 				parentObj.transform.parent = transform;
 				parentObj.transform.localPosition = Vector3.zero;
 				parentObj.transform.position = candidates[0].transform.position;
 
-				foreach (Point p in candidates)
+				foreach(Point p in candidates)
 				{
 					Transform worldP = p.transform.parent;
 					GameObject dismountObject = Instantiate(dismountPrefab, worldP.position, worldP.rotation) as GameObject;
-
-					Vector3 targetPosition = worldP.position +((worldP.forward /1.6f) + Vector3.up * 1.7f);
+					Vector3 targetPosition = worldP.position + ((worldP.forward / 1.6f) + Vector3.up * 1.2f);
 					dismountObject.transform.position = targetPosition;
 					Point dismountPoint = dismountObject.GetComponentInChildren<Point>();
 
 					Neighbour n = new Neighbour();
 					n.direction = Vector3.up;
 					n.target = dismountPoint;
-					n.connectionType = ConnectionType.dismount;
+					n.connectionType= ConnectionType.dismount;
 					p.neighbours.Add(n);
 
 					Neighbour n2 = new Neighbour();
 					n2.direction = -Vector3.up;
-					n2.target = dismountPoint;
+					n2.target = p;
 					n2.connectionType = ConnectionType.dismount;
 					dismountPoint.neighbours.Add(n2);
-					dismountObject.transform.parent = parentObj.transform; 
+					dismountPoint.dismountPoint = true;
+
+					dismountObject.transform.parent = parentObj.transform;
+
+					//fix position to find the ground automatically
+					RaycastHit hit;
+					if(Physics.Raycast(dismountObject.transform.position, -Vector3.up, out hit, 2))
+					{
+						Vector3 gp = hit.point;
+						gp.y += 0.04f + Mathf.Abs(dismountPoint.transform.localPosition.y);
+						dismountObject.transform.position = gp;
+					}
+
+					this.dismountPoints.Add(dismountObject);
 				}
-			}
+			} 
 		}
 
 		void RefreshAll()

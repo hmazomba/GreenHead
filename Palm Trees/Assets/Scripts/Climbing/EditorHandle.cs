@@ -70,12 +70,32 @@ namespace Climbing
 
         for (int i = 0; i < t.ConnectedPoints.Count; i++)
         {
-            if(t.ConnectedPoints[i].target1 == null)
+            Vector3 pos1 = Vector3.zero;
+            Vector3 pos2 = Vector3.zero;
+
+            if(t.ConnectedPoints[i].target1 == null || t.ConnectedPoints[i].target2)
                 continue;
 
-            Vector3 pos1 = t.transform.position;
-            Vector3 pos2 = t.ConnectedPoints[i].target1.transform.position;
-
+            
+            switch (t.lineOrigin)
+            {
+                case DrawLine.LineOrigin.hips:
+                    pos1 = t.ConnectedPoints[i].target1.transform.position;
+                    pos2 = t.ConnectedPoints[i].target2.transform.position;
+                    break;
+                case DrawLine.LineOrigin.hands:
+                    pos1 = t.ConnectedPoints[i].target1.transform.parent.position;
+                    pos2 = t.ConnectedPoints[i].target2.transform.parent.position;
+                    break;
+                case DrawLine.LineOrigin.root:
+                    pos1 = t.ConnectedPoints[i].target1.transform.position;
+                    pos2 = t.ConnectedPoints[i].target2.transform.position;
+                    pos1.y += -0.86f;
+                    pos2.y += -0.86f;
+                    break;    
+                default:
+                break;
+            }
             switch (t.ConnectedPoints[i].connectionType)
             {
                 case ConnectionType.direct:

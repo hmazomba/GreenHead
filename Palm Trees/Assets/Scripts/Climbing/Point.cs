@@ -6,9 +6,24 @@ namespace Climbing
 {
 	[System.Serializable]
 	public class Point : MonoBehaviour {
+		public PointType pointType;
 		public List<Neighbour> neighbours = new List<Neighbour>();
 		public List<IKPositions> ikPositions = new List<IKPositions>();
+        public bool dismountPoint;
 
+        public Neighbour ReturnNeighbourFromDirection(Vector3 dir)
+		{
+			Neighbour retVal = null;
+			for (int i = 0; i < neighbours.Count; i++)
+			{
+				if(neighbours[i].direction == dir)
+				{
+					retVal = neighbours[i];
+					break;
+				}
+			}
+			return retVal;
+		}
 		public IKPositions ReturnIK(AvatarIKGoal goal)
 		{
 			IKPositions retVal = null;
@@ -53,6 +68,7 @@ namespace Climbing
 		public Vector3 direction;
 		public Point target;
 		public ConnectionType connectionType;
+		public bool customConnection;
 	}
 
 	public enum ConnectionType{
@@ -60,5 +76,11 @@ namespace Climbing
 		direct,
 		dismount, 
 		falling
+	}
+
+	public enum PointType
+	{
+		braced,
+		hanging
 	}
 }
